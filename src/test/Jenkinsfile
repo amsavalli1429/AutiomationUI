@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven_3_9_0'  // Use the name of Maven version configured in Jenkins
+        jdk 'Java_"17.0.12'        // Use your installed JDK name
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                // Pull code from GitHub or your repo
+                git branch: 'main', url: 'https://github.com/amsavalli1429/AutiomationUI.git'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                // Clean and run your test cases
+                bat 'mvn clean test'
+            }
+        }
+
+        stage('Generate Extent Report') {
+            steps {
+                echo 'Extent Report will be generated automatically in test-output folder'
+            }
+        }
+
+        stage('Publish Report') {
+            steps {
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'test-output',
+                    reportFiles: '**/*.html',
+                    reportName: 'Extent Report'
+                ])
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+    }
+}
