@@ -2,29 +2,22 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven_3_9_0'  // Use the name of Maven version configured in Jenkins
-        jdk 'Java_"17.0.12'        // Use your installed JDK name
+        maven 'Maven_3_9_0'
+        jdk 'Java_17'
     }
 
     stages {
-
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                // Pull code from GitHub or your repo
-                git branch: 'main', url: 'https://github.com/amsavalli1429/AutiomationUI.git'
+                git branch: 'main',
+                    url: 'https://github.com/amsavalli1429/AutiomationUI.git'
             }
         }
 
-        stage('Build & Test') {
+        stage('Build and Test') {
             steps {
-                // Clean and run your test cases
+                echo 'Running Maven build and tests...'
                 bat 'mvn clean test'
-            }
-        }
-
-        stage('Generate Extent Report') {
-            steps {
-                echo 'Extent Report will be generated automatically in test-output folder'
             }
         }
 
@@ -44,8 +37,12 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up workspace...'
-            cleanWs()
+            echo 'Pipeline finished.'
+        }
+        failure {
+            mail to: 'amsavallira114@gmail.com',
+                 subject: "Jenkins Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Hi Amsavalli,\n\nBuild failed. Please check Jenkins console for details.\n\n- Jenkins"
         }
     }
 }
